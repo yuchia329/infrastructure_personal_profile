@@ -1,0 +1,10 @@
+# Secret variable values — never commit!
+terraform.tfvars
+
+# Terraform state and lock files — commit .tfstate only if NOT using remote backend
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+crash.log
+*.pem

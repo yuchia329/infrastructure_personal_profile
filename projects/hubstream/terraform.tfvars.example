@@ -1,0 +1,40 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is gitignored — never commit real credentials.
+
+aws_region    = "us-east-1"
+project_name  = "hubstream"
+environment   = "production"
+
+# ── ARM Graviton2 Instance ─────────────────────────────────────────────────────
+# t4g = ARM64 Graviton2 (~40% cheaper than equivalent t3)
+# t4g.small  ~$12/mo  | 2 vCPU  2 GB  — OK for low traffic
+# t4g.medium ~$24/mo  | 2 vCPU  4 GB  — Recommended for Mediasoup
+# t4g.large  ~$48/mo  | 2 vCPU  8 GB  — High participant count
+instance_type = "t4g.medium"
+
+# Ubuntu 22.04 LTS ARM64 — MUST be arm64 to match t4g instances
+# Run this to get the latest in your region:
+# aws ec2 describe-images --owners 099720109477 \
+#   --filters 'Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-arm64*' \
+#   --query 'sort_by(Images, &CreationDate)[-1].ImageId' --region us-east-1
+ami_id = "ami-0d71ea30463e0ff49" # us-east-1 Ubuntu 22.04 LTS ARM64
+
+# Name of the key pair in AWS EC2 console
+key_pair_name = "hubstream"
+
+# Restrict SSH to your own IP for security (find yours: curl ifconfig.me)
+allowed_ssh_cidr = "YOUR_HOME_IP/32"
+
+# ── Cloudflare DNS ─────────────────────────────────────────────────────────────
+# Domain registered in Cloudflare — NOT Route 53
+domain_name = "yuchia.dev"
+
+# Subdomain prefix — "hubstream" → hubstream.yuchia.dev  |  "@" → yuchia.dev (apex)
+subdomain = "hubstream"
+
+# Found in Cloudflare Dashboard → yuchia.dev → Overview → right sidebar → Zone ID
+cloudflare_zone_id = "YOUR_CLOUDFLARE_ZONE_ID"
+
+# Cloudflare API token — create at dash.cloudflare.com/profile/api-tokens
+# Required permissions: Zone • DNS • Edit (scoped to yuchia.dev)
+cloudflare_api_token = "YOUR_CLOUDFLARE_API_TOKEN"
