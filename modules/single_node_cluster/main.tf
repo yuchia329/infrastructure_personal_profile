@@ -383,6 +383,8 @@ resource "aws_instance" "app" {
     cd /home/ubuntu/k8s-observability-platform/hubstream/kubernetes
     chmod +x start_script.sh
     ./start_script.sh
+    cd /home/ubuntu/k8s-observability-platform/monitor
+    kubectl apply -f hubstream_dashvoard.yaml
 
     echo "Infrastructure base initialization complete."
   EOF
