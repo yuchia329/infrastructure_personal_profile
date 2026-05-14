@@ -371,18 +371,18 @@ resource "aws_instance" "app" {
     export KUBECONFIG=~/.kube/config
     echo 'export KUBECONFIG=~/.kube/config' >> ~/.bashrc
     source ~/.bashrc
-    
-    echo "[6/7] Running Hubstream..."
-    cd /home/ubuntu/k8s-observability-platform/hubstream/kubernetes
-    chmod +x start_script.sh
-    ./start_script.sh
 
-    echo "[7/7] Running Monitoring Services..."
+    echo "[6/7] Running Monitoring Services..."
     cd /home/ubuntu/k8s-observability-platform/monitor
     chmod +x install_prometheus_grafana_loki.sh
     cp .env.example .env
     sed -i 's/^GRAFANA_ADMIN_PASSWORD=.*/GRAFANA_ADMIN_PASSWORD=${var.grafana_admin_password}/' .env
     ./install_prometheus_grafana_loki.sh
+
+    echo "[7/7] Running Hubstream..."
+    cd /home/ubuntu/k8s-observability-platform/hubstream/kubernetes
+    chmod +x start_script.sh
+    ./start_script.sh
 
     echo "Infrastructure base initialization complete."
   EOF
