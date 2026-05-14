@@ -42,5 +42,12 @@ variable "subdomain" {
 }
 
 variable "github_repos" {
-  type = list(string)
+  type    = list(string)
+  default = ["yuchia329/hub_stream", "yuchia329/monitor"]
+}
+
+variable "grafana_admin_password" {
+  description = "Grafana admin password"
+  type        = string
+  sensitive   = true
 }

@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "project_name" {
   type    = string
-  default = "hubstream"
+  default = "hub_stream"
 }
 
 variable "environment" {
@@ -46,6 +46,12 @@ variable "subdomain" {
 }
 
 variable "github_repos" {
-  description = "List of GitHub repositories allowed to deploy (e.g., [\"yuchia329/HubStream\", \"yuchia329/monitor\"])"
+  description = "List of GitHub repositories allowed to deploy (e.g., [\"yuchia329/hub_stream\", \"yuchia329/monitor\"])"
   type        = list(string)
+}
+
+variable "grafana_admin_password" {
+  description = "Grafana admin password"
+  type        = string
+  sensitive   = true
 }

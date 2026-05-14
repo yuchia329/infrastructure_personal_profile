@@ -337,15 +337,15 @@ resource "aws_instance" "app" {
     export NEEDRESTART_MODE=a
     exec > >(tee /var/log/hubstream-init.log | logger -t user-data -s 2>/dev/console) 2>&1
 
-    echo "[1/3] Installing system packages..."
+    echo "[1/7] Installing system packages..."
     apt-get update -y
-    apt-get install -y curl ca-certificates gnupg lsb-release jq
+    apt-get install -y curl ca-certificates gnupg lsb-release jq git
 
-    echo "[2/3] Starting SSM Agent..."
+    echo "[2/7] Starting SSM Agent..."
     snap list amazon-ssm-agent || snap install amazon-ssm-agent --classic
     systemctl enable --now snap.amazon-ssm-agent.amazon-ssm-agent.service || true
 
-    echo "[3/3] Installing Docker Engine..."
+    echo "[3/7] Installing Docker Engine..."
     install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
     chmod a+r /etc/apt/keyrings/docker.asc
@@ -355,6 +355,34 @@ resource "aws_instance" "app" {
     systemctl enable docker
     systemctl start docker
     usermod -aG docker ubuntu
+
+    echo "[4/7] Cloning k8s-observability-platform repository..."
+    cd /home/ubuntu
+    git clone https://github.com/yuchia329/k8s-observability-platform.git
+    chown -R ubuntu:ubuntu k8s-observability-platform
+
+    echo "[5/7] Running installation scripts..."
+    cd /home/ubuntu/k8s-observability-platform/monitor
+    chmod +x install-k3s.sh
+    ./install-k3s.sh
+    mkdir -p ~/.kube
+    sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+    sudo chown $(id -u):$(id -g) ~/.kube/config
+    export KUBECONFIG=~/.kube/config
+    echo 'export KUBECONFIG=~/.kube/config' >> ~/.bashrc
+    source ~/.bashrc
+    
+    echo "[6/7] Running Hubstream..."
+    cd /home/ubuntu/k8s-observability-platform/hubstream/kubernetes
+    chmod +x start_script.sh
+    ./start_script.sh
+
+    echo "[7/7] Running Monitoring Services..."
+    cd /home/ubuntu/k8s-observability-platform/monitor
+    chmod +x install_prometheus_grafana_loki.sh
+    cp .env.example .env
+    sed -i 's/^GRAFANA_ADMIN_PASSWORD=.*/GRAFANA_ADMIN_PASSWORD=${var.grafana_admin_password}/' .env
+    ./install_prometheus_grafana_loki.sh
 
     echo "Infrastructure base initialization complete."
   EOF

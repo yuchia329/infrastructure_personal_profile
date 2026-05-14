@@ -11,6 +11,7 @@ module "core_cluster" {
   domain_name          = var.domain_name
   subdomain            = var.subdomain
   github_repos         = var.github_repos
+  grafana_admin_password = var.grafana_admin_password
 }
 
 resource "cloudflare_record" "grafana" {
